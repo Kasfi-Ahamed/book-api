@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "book-api"
-        SNYK_TOKEN = credentials('snyk-token') // Jenkins credentials ID for your Snyk token
+        SNYK_TOKEN = credentials('snyk-token') // Jenkins credentials ID for Snyk auth
     }
 
     stages {
@@ -34,6 +34,14 @@ pipeline {
             }
         }
 
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t %IMAGE_NAME% .'
@@ -49,7 +57,6 @@ pipeline {
         stage('Release') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
                     bat 'docker tag %IMAGE_NAME% %DOCKER_USER%/%IMAGE_NAME%:latest'
                     bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:latest'
                 }
