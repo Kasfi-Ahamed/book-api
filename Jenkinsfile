@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "book-api"
+        SNYK_TOKEN = credentials('snyk-token') // Jenkins credentials ID for your Snyk token
     }
 
     stages {
@@ -15,6 +16,13 @@ pipeline {
         stage('Run Tests') {
             steps {
                 bat 'npm test'
+            }
+        }
+
+        stage('Security Scan - Snyk') {
+            steps {
+                bat 'snyk auth %SNYK_TOKEN%'
+                bat 'snyk monitor --all-projects --org=3267235c-867e-4eda-ad76-48b828a8cd64'
             }
         }
 
