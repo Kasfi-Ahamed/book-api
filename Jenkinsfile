@@ -18,6 +18,14 @@ pipeline {
             }
         }
 
+        stage('Code Quality - SonarQube') {
+            steps {
+                withSonarQubeEnv('LocalSonar') {
+                    bat 'sonar-scanner'
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t %IMAGE_NAME% .'
