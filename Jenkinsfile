@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "book-api"
-        SNYK_TOKEN = credentials('snyk-token') // Jenkins credentials ID for Snyk auth
+        SNYK_TOKEN = credentials('snyk-token') // Snyk Auth
     }
 
     stages {
@@ -51,6 +51,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 bat 'docker run -d -p 3001:3000 %IMAGE_NAME%'
+                sleep time: 5, unit: 'SECONDS' // wait for app to boot
             }
         }
 
@@ -66,10 +67,17 @@ pipeline {
         stage('Monitoring & Alerting') {
             steps {
                 bat '''
-                curl -s http://localhost:3001/books || (
+                curl -s http://localhost:3001/health > healthcheck.log || (
                   echo "❌ Application is down!" > monitoring-alert.txt
                   type monitoring-alert.txt
                 )
+
+                curl -s http://localhost:3001/metrics > metrics.txt || (
+                  echo "⚠️ Failed to fetch metrics!" >> monitoring-alert.txt
+                )
+
+                type healthcheck.log
+                if exist monitoring-alert.txt type monitoring-alert.txt
                 '''
             }
         }
