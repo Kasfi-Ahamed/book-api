@@ -24,7 +24,7 @@ pipeline {
                 // Authenticate and monitor project with Snyk
                 bat 'echo %SNYK_TOKEN% > snyk.token'
                 bat 'snyk auth %SNYK_TOKEN%'
-                bat 'snyk monitor --all-projects --org=3267235c-867e-4eda-ad76-48b828a8cd64'
+                bat 'snyk monitor --all-projects --org=3267235c-867e-4eda-ad76-48b028a8cd64'
             }
         }
 
