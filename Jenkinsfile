@@ -6,12 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/Kasfi-Ahamed/book-api.git'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
