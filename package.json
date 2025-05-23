@@ -1,15 +1,15 @@
 {
   "name": "book-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple book API with CI/CD and monitoring integrations",
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "jest"
+    "test": "jest --coverage --coverageReporters=text --coverageReporters=lcov"
   },
   "keywords": [],
-  "author": "",
+  "author": "Kasfi Ahamed",
   "license": "ISC",
   "dependencies": {
     "express": "^5.1.0"
@@ -18,5 +18,17 @@
     "jest": "^29.7.0",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ]
   }
 }
