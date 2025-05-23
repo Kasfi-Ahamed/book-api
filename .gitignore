@@ -1,3 +1,5 @@
 node_modules
 .env
 coverage
+# Ignore Prometheus extracted files
+prometheus-3.4.0.windows-amd64/
