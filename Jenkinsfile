@@ -34,7 +34,7 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 3000:3000 %IMAGE_NAME%'
+                bat 'docker run -d -p 3001:3000 %IMAGE_NAME%'
             }
         }
     }
