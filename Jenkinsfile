@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "book-api"
-        SNYK_TOKEN = credentials('snyk-token') // Snyk Auth
+        IMAGE_TAG = "v1.0.0"
+        SNYK_TOKEN = credentials('snyk-token')
     }
 
     stages {
@@ -45,13 +46,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t %IMAGE_NAME% .'
+                bat 'docker tag %IMAGE_NAME% %IMAGE_NAME%:%IMAGE_TAG%'
             }
         }
 
         stage('Deploy') {
             steps {
-                bat 'docker run -d -p 3001:3000 %IMAGE_NAME%'
-                sleep time: 5, unit: 'SECONDS' // wait for app to boot
+                bat 'docker run -d -p 3001:3000 --name running_app %IMAGE_NAME%:%IMAGE_TAG%'
+                sleep time: 8, unit: 'SECONDS' // ensure app is ready
             }
         }
 
@@ -59,7 +61,9 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat 'docker tag %IMAGE_NAME% %DOCKER_USER%/%IMAGE_NAME%:latest'
+                    bat 'docker tag %IMAGE_NAME% %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%'
                     bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:latest'
+                    bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%'
                 }
             }
         }
@@ -76,8 +80,16 @@ pipeline {
                   echo "⚠️ Failed to fetch metrics!" >> monitoring-alert.txt
                 )
 
+                echo 🔍 Health Check Result:
                 type healthcheck.log
-                if exist monitoring-alert.txt type monitoring-alert.txt
+
+                echo 🔍 Metrics Output:
+                type metrics.txt
+
+                if exist monitoring-alert.txt (
+                  echo 🚨 Alerts:
+                  type monitoring-alert.txt
+                )
                 '''
             }
         }
